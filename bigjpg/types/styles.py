@@ -1,4 +1,3 @@
-Art = "art"
-Photo = "photo"
-
-__all__ = [ Art, Photo ]
+class Styles:
+    Art = "art"
+    Photo = "photo"

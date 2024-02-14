@@ -1,4 +1,4 @@
-from .types import enlarge_values, styles, noices
+from .types.enlarge_values import EnlargeValues
+from .types.noises import Noises
+from .types.styles import Styles
 from .enlarger import Bigjpg
-
-__all__ = [ Bigjpg, enlarge_values, styles, noices ]

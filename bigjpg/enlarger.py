@@ -1,5 +1,5 @@
 from urllib.request import urlretrieve
-from pydantic import validate_arguments
+from pydantic import validate_call
 from rich import print
 import httpx
 import json
@@ -10,31 +10,31 @@ base_url = "https://bigjpg.com/api"
 class BigjpgError(Exception): ...
 
 class BigjpgImage:
-    @validate_arguments
+    @validate_call
     def __init__(self, image_url: str) -> None:
-        self.__image_url = image_url
+        self._image_url = image_url
 
     def get_url(self) -> str:
-        return self.__image_url
+        return self._image_url
 
-    @validate_arguments
-    def download(self, out_path: str):
-        urlretrieve(self.__image_url, out_path)
+    @validate_call
+    def download(self, out_path: str) -> None:
+        urlretrieve(self._image_url, out_path)
 
 class BigjpgTask:
-    @validate_arguments
+    @validate_call
     def __init__(self, url: str, task_id: str) -> None:
-        self.__url = url
-        self.__task_id = task_id
+        self._url = url
+        self._task_id = task_id
 
     def fetch_util_achieve_the_result(self):
         print(f"> [green][b][Bigjpg-info][/b][/green] [yellow]Waiting for image processing...[/yellow]")
 
         while True:
-            response = httpx.get(self.__url)
+            response = httpx.get(self._url)
             json_response = response.json()
 
-            data = json_response[self.__task_id]
+            data = json_response[self._task_id]
 
             status = data["status"]
 
@@ -47,11 +47,11 @@ class BigjpgTask:
             time.sleep(.5)
 
 class Bigjpg:
-    @validate_arguments
+    @validate_call
     def __init__(self, api_token: str) -> None:
-        self.__api_token = api_token
+        self._api_token = api_token
 
-    @validate_arguments
+    @validate_call
     def enlarge(
         self,
         style: str,
@@ -68,22 +68,20 @@ class Bigjpg:
             "input": image_url
         }
 
-        headers = { "X-API-KEY": self.__api_token }
+        headers = { "X-API-KEY": self._api_token }
         data = { "conf": json.dumps(config) }
 
-        response = httpx.post(url, data=data, headers=headers)
+        response = httpx.post(url, data = data, headers = headers)
         json_response: dict = response.json()
-
-        print(json_response)
 
         if "status" in json_response.keys():
             status = json_response["status"]
 
             if status == "valid_api_key_required":
-                raise BigjpgError("Invalid API token, get your API token on the website by registering 'https://bigjpg.com/' and going to the 'API' section and copying your token that is present in the example code")
+                raise BigjpgError("Invalid API token, get your API token on the website by registering 'https://bigjpg.com/' and going to the 'API' section and copying your token that is present in the example code.")
 
             elif status == "param_error":
-                raise BigjpgError("Some invalid parameter, check parameters and features available in your account and try again")
+                raise BigjpgError("Some invalid parameter, check parameters and features available in your account and try again.")
 
         remaining_api_calls = json_response["remaining_api_calls"]
 
@@ -98,6 +96,3 @@ class Bigjpg:
         image = BigjpgImage(image_url)
 
         return image
-
-__all__ = [ Bigjpg ]
-#{'status': 'valid_api_key_required'}
